@@ -52,7 +52,7 @@ class ConfigurationTest extends \PHPUnit\Framework\TestCase
             'auth_code_class' => 'anAuthCodeClass',
         ]]);
 
-        $this->assertArraySubset([
+        $this->assertArrayIsSubset([
             'db_driver' => 'orm',
             'client_class' => 'aClientClass',
             'access_token_class' => 'anAccessTokenClass',
@@ -168,7 +168,7 @@ class ConfigurationTest extends \PHPUnit\Framework\TestCase
             ],
         ]]);
 
-        $this->assertArraySubset([
+        $this->assertArrayIsSubset([
             'db_driver' => 'custom',
             'client_class' => 'aClientClass',
             'access_token_class' => 'anAccessTokenClass',
@@ -183,5 +183,20 @@ class ConfigurationTest extends \PHPUnit\Framework\TestCase
                 'auth_code_manager' => 'an_auth_code_manager_id',
             ],
         ], $config);
+    }
+
+    private function assertArrayIsSubset(array $needle, array $haystack): void {
+        foreach ($needle as $key => $value) {
+            $this->assertArrayHasKey($key, $haystack);
+            if (is_array($value)) {
+                if (is_array($haystack[$key])) {
+                    $this->assertArrayIsSubset($value, $haystack[$key]);
+                } else {
+                    $this->fail("Haystack value for key $key is not an array: $haystack[$key]");
+                }
+            } else {
+                $this->assertSame($value, $haystack[$key]);
+            }
+        }
     }
 }
